@@ -1,6 +1,7 @@
 # GitHub Pages を使ってみる
 
 ![un license](https://img.shields.io/github/license/RyosukeDTomita/github-pages-test-docker)
+[![.github/workflows/gh-pages.yml](https://github.com/RyosukeDTomita/github-pages-test-docker/actions/workflows/gh-pages.yml/badge.svg)](https://github.com/RyosukeDTomita/github-pages-test-docker/actions/workflows/gh-pages.yml)
 
 ## INDEX
 
