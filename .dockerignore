@@ -1,0 +1,10 @@
+README.md
+.gitignore
+CODEOWNERS
+LICENSE
+.git/
+.github/
+src/__tests__/*
+Dockerfile
+docker-compose.yml
+doc/*

@@ -1,0 +1,61 @@
+on:
+  push:
+    branches:
+      - master
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+env:
+  GITHUB_CONTAINER_REGISTRY_TAG: ryosukedtomita/github-pages-test-docker
+  IMAGE_NAME: react-app
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build app with docker
+        run: |
+          docker compose up -d
+          docker compose cp react-app:/usr/share/nginx/html build
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./build
+
+      # imageをgithub container registryにpushする
+      - name: Log in to GitHub Container Registry
+        run: echo ${{ secrets.PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push Docker image to GitHub Container Registry
+        run: | 
+          docker tag ${{ env.IMAGE_NAME}} ghcr.io/${{ env.GITHUB_CONTAINER_REGISTRY_TAG }}:latest
+          docker push ghcr.io/${{ env.GITHUB_CONTAINER_REGISTRY_TAG }}:latest
+          
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
